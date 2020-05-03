@@ -1,0 +1,28 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Create inventory file
+        run: echo ${{ secrets.INSTANCE_IP }} > ./deployment/hosts
+
+      - name: Execute Ansible Playbook
+        uses: arillso/action.playbook@0.0.1
+        with:
+          playbook: ./deployment/deploy.yaml
+          inventory: ./deployment/hosts
+          private_key: ${{ secrets.SSH_KEY }}
+          user: deployer
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: 'false'
+          ANSIBLE_DEPRECATION_WARNINGS: 'false'

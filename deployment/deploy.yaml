@@ -16,31 +16,15 @@
             src: ../docker-compose.yml
             dest: ~/deploy-{{ timestamp }}/docker-compose.yml
 
-        - name: Nginx config stat
-          stat:
-            path: ~/nginx-conf/nginx.conf
-            register: nginx_config_stat
+        - name: Create config folder
+          file:
+            path: ~/nginx-conf
+            state: directory
 
         - name: Copy Nginx config
           copy:
             src: ../nginx-conf/nginx.conf
-            dest: /etc/nginx/nginx.conf
-          when: !nginx_config_stat.exists
-
-        - name: Cert stat
-          stat:
-            path: ~/ssl/cultural.romangr.ru.crt
-            register: cert_stat
-
-        - name: Key stat
-          stat:
-            path: ~/ssl/cultural.romangr.ru.key
-            register: key_stat
-
-        - name: Key and cert exist
-          fail:
-            msg: "Key and/or cert doesn't exist"
-          when: "!cert_stat.stat.exists || !key_stat.stat.exists"
+            dest: ~/nginx-conf/nginx.conf
 
         - name: Start up application
           docker_compose:
